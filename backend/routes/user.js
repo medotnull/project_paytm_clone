@@ -62,6 +62,11 @@ router.post("/signup", async (req, res) => {
 
     const userId = user._id;
 
+     await Account.create({
+        userId,
+        balance: 1 + Math.random() * 10000
+    })
+    
     const token = jwt.sign({ userId }, JWT_SECRET, {expiresIn: "1h"}
     )
 
@@ -127,9 +132,9 @@ router.get("/bulk", async (req, res) => {
     const filter = req.query.filter || "";
 
     const users = await User.find({
-        $or: [{
+        $or: [{ // does multiple searches
             firstName: {
-                "$regex": filter
+                "$regex": filter // to do partial matching with like searches
             }
         }, {
             lastName: {

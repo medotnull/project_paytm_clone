@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { maxLength, minLength } from "zod";
+import { float32, maxLength, minLength } from "zod";
 const {Schema} = mongoose;
 
 mongoose.connect("mongodb://localhost:27017/paytmDB")
@@ -32,10 +32,23 @@ const userSchema = new Schema({
         maxLength: 50
     },
 })
-//lacks constrains and validations  
 
+const accountsSchema = new Schema({
+    userId: { //foreign key
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    balance: {
+        type: Number,
+        required: true,
+    } 
+})
+
+const Account = mongoose.model("Account", accountsSchema);
 const User = mongoose.model("User", userSchema);
 
 module.exports = {
-    User
+    User,
+    Account
 }
