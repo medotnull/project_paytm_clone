@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { float32, maxLength, minLength } from "zod";
+const mongoose = require("mongoose");
+
 const {Schema} = mongoose;
 
 mongoose.connect("mongodb://localhost:27017/paytmDB")
@@ -48,7 +48,5 @@ const accountsSchema = new Schema({
 const Account = mongoose.model("Account", accountsSchema);
 const User = mongoose.model("User", userSchema);
 
-module.exports = {
-    User,
-    Account
-}
+
+module.exports = { User, Account};

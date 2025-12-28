@@ -2,11 +2,11 @@ const express = require("express");
 const { User } = require("../db");
 const { authMiddleware } = require("../middleware"); 
 const zod = require("zod");
-const router = express.router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../routes/config");
+const { JWT_SECRET } = require("./config");
 
+const router = express.Router();
 
 const signupSchema = zod.object({
     username: zod.string().min(3).max(30),
@@ -16,7 +16,7 @@ const signupSchema = zod.object({
 })
 
 const signinSchema = zod.object({
-    username: zod.string().z.email(),
+    username: zod.string().email(),
     password: zod.string()
 })
 
