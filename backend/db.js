@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-
+const config = require('./routes/config');
 const {Schema} = mongoose;
 
-mongoose.connect("mongodb://localhost:27017/paytmDB")
+mongoose.connect(config.mongoURI);
 
 const userSchema = new Schema({
     username: {

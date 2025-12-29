@@ -16,7 +16,7 @@ const signupSchema = zod.object({
 })
 
 const signinSchema = zod.object({
-    username: zod.string().email(),
+    username: zod.string(),
     password: zod.string()
 })
 
@@ -78,7 +78,7 @@ router.post("/signup", async (req, res) => {
 
 router.post("/signin", async (req, res) => {
     const {success} = signinSchema.safeParse(req.body)
-    if(!sucess){
+    if(!success){
         return res.status(411).json({
             message: "Email already taken/ Incorrect inputs"
         })
@@ -86,7 +86,6 @@ router.post("/signin", async (req, res) => {
 
     const user = await User.findOne({
         username: req.body.username,
-        password: req.body.password
     })
     if(!user){
         return res.status(411).json({
@@ -94,7 +93,7 @@ router.post("/signin", async (req, res) => {
         })
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
 
     if(!isPasswordValid){
         return res.status(411).json({
