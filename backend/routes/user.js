@@ -2,7 +2,7 @@ const express = require("express");
 const { User } = require("../db");
 const { authMiddleware } = require("../middleware"); 
 const zod = require("zod");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("./config");
 
@@ -11,8 +11,8 @@ const router = express.Router();
 const signupSchema = zod.object({
     username: zod.string().min(3).max(30),
     password: zod.string().min(6),
-    firstName: zod.string().max(30),
-    lastName: zod.string().max(30),
+    firstName: zod.string().min(1).max(30),
+    lastName: zod.string().min(1).max(30),
 })
 
 const signinSchema = zod.object({
@@ -27,54 +27,85 @@ const updateUserSchema = zod.object({
 })
 
 
+router.get("/test", (req, res) => {
+    res.json({ message: "Routes working!" });
+});
 
 
 //routing for user signup
+// router.post("/signup", async (req, res) => {
+//     console.log("✅ Signup route HIT:", req.body);
+    
+//     const body = req.body;
+//     const {success} = signupSchema.safeParse(body); //parse only valid data from body
+
+//     if(!success){
+//         return res.json({
+//             message: "Email already taken / Incorrect inputs",
+//         })
+//     }
+    
+//     const hashPassword = await bcrypt.hash(req.body.password, 10);
+
+//     const existingUser = await User.findOne({
+//         username: req.body.username
+//     })
+
+//     if(existingUser){
+//         return res.status(411).json({
+//             message: "Email already taken/ Incorrect inputs"
+//         })
+//     }
+
+//     // creating a new user
+//     const user = await User.create({
+//         username: req.body.username,
+//         password: hashPassword,
+//         firstName: req.body.firstName,
+//         lastName: req.body.lastName,
+//     })
+
+//     const userId = user._id;
+
+//      await Account.create({
+//         userId,
+//         balance: 1 + Math.random() * 10000
+//     })
+    
+//     const token = jwt.sign({ userId }, JWT_SECRET, {expiresIn: "1h"})
+
+//     res.status(200).json({
+//         message: "User created successfully", token
+//     })
+// })
+
 router.post("/signup", async (req, res) => {
-    const body = req.body;
-    const {success} = signupSchema.safeParse(body); //parse only valid data from body
-
-    if(!success){
-        return res.json({
-            message: "Email already taken / Incorrect inputs",
-        })
-    }
+    console.log("✅ Signup route HIT:", req.body);
     
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
-
-    const existingUser = await User.findOne({
-        username: req.body.username
-    })
-
-    if(existingUser){
-        return res.status(411).json({
-            message: "Email already taken/ Incorrect inputs"
-        })
-    }
-
-    // creating a new user
-    const user = await User.create({
-        username: req.body.username,
-        password: hashPassword,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-    })
-
-    const userId = user._id;
-
-     await Account.create({
-        userId,
-        balance: 1 + Math.random() * 10000
-    })
+    // TEMP: Bypass Zod completely
+    console.log("✅ BYPASSING ZOD - proceeding to DB");
     
-    const token = jwt.sign({ userId }, JWT_SECRET, {expiresIn: "1h"}
-    )
-
-    res.status(200).json({
-        message: "User created successfully", token
-    })
-})
-
+    try {
+        const existingUser = await User.findOne({ username: req.body.username });
+        if (existingUser) {
+            return res.status(409).json({ message: "Username taken" });
+        }
+        
+        const hashPassword = await bcrypt.hash(req.body.password, 10);
+        const user = await User.create({
+            username: req.body.username,
+            password: hashPassword,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+        });
+        
+        console.log("✅ User created:", user._id);
+        res.json({ message: "User created successfully", userId: user._id });
+    } catch (error) {
+        console.error("❌ DB Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 router.post("/signin", async (req, res) => {
     const {success} = signinSchema.safeParse(req.body)

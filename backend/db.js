@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 const config = require('./routes/config');
 const {Schema} = mongoose;
 
-mongoose.connect(config.mongoURI);
+// db.js
+mongoose.connect(config.mongoURI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB error:", err));
+
+mongoose.connection.on('error', err => console.error('DB error:', err));
+
 
 const userSchema = new Schema({
     username: {

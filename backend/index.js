@@ -7,6 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 //import routes
 const rootRouter = require("./routes/index");
 
