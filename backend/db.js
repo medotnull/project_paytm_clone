@@ -19,6 +19,7 @@ const userSchema = new Schema({
         lowercase: true,
         minLength:3,
         maxLength:30,
+        match: /.+\@.+\..+/,
     },
     password: {
         type: String,
