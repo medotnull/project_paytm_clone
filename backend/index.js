@@ -1,41 +1,4 @@
-// const express = require("express");
-// const cors = require("cors");
 
-// const app = express();
-
-// //middlewares
-// app.use(cors());
-// //app.use(express.json());
-
-// app.use(express.json({ limit: "10mb", strict: false }));  // Fix Postman chunked/strict
-
-// // Extra body debug BEFORE routes
-// app.use((req, res, next) => {
-//     console.log("🌐", req.method, req.path);
-//     console.log("📦 Raw body length:", req.body ? Object.keys(req.body).length : "EMPTY");
-//     console.log("📦 Body:", JSON.stringify(req.body, null, 2));
-//     next();
-// });
-
-
-// //import routes
-// const rootRouter = require("./routes/index");
-
-
-// // using routes
-// app.use("/api/v1", rootRouter)
-
-// // 🛡️ Global error handler (catches crashes)
-// app.use((err, req, res, next) => {
-//     console.error("💥 ERROR:", err.message);
-//     console.error("💥 Stack:", err.stack);
-//     res.status(500).json({ error: err.message });
-// });
-
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-// });
 const express = require("express");
 const cors = require("cors");
 

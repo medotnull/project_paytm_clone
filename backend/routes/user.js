@@ -4,6 +4,9 @@ const { authMiddleware } = require("../middleware");
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("./config");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const router = express.Router();
 
@@ -55,7 +58,7 @@ router.post("/signup", async (req, res) => {
 
     const token = jwt.sign({
         userId
-    }, jwtSecret);
+    }, process.env.JWT_SECRET);
 
     res.json({
         message: "User created successfully",
@@ -81,7 +84,7 @@ router.post("/signin", async (req, res) => {
     if (user) {
         const token = jwt.sign({
             userId: user._id
-        }, jwtSecret);
+        }, process.env.JWT_SECRET);
   
         res.json({
             token: token
