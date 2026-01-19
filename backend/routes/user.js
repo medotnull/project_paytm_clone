@@ -1,12 +1,8 @@
 const express = require("express");
-const { User } = require("../db");
+const { User, Account} = require("../db");
 const { authMiddleware } = require("../middleware"); 
 const zod = require("zod");
 const jwt = require("jsonwebtoken");
-const { jwtSecret } = require("./config");
-const dotenv = require("dotenv");
-
-dotenv.config();
 
 const router = express.Router();
 
@@ -17,21 +13,9 @@ const signupSchema = zod.object({
     lastName: zod.string().min(1).max(30),
 })
 
-const signinSchema = zod.object({
-    username: zod.email(),
-    password: zod.string()
-})
-
-const updateUserSchema = zod.object({
-    password: zod.string().min(6),
-    firstName: zod.string().max(30),
-    lastName: zod.string().max(30)
-})
-
-
 // routing for user signup
 router.post("/signup", async (req, res) => {
-    const { success } = signupBody.safeParse(req.body)
+    const { success } = signupSchema.safeParse(req.body)
     if (!success) {
         return res.status(411).json({
             message: "Email already taken / Incorrect inputs"
@@ -56,6 +40,11 @@ router.post("/signup", async (req, res) => {
     })
     const userId = user._id;
 
+    await Account.create({
+        userId,
+        balance: 1 + Math.random() * 10000
+    })
+
     const token = jwt.sign({
         userId
     }, process.env.JWT_SECRET);
@@ -66,10 +55,13 @@ router.post("/signup", async (req, res) => {
     })
 })
 
-
+const signinSchema = zod.object({
+    username: zod.email(),
+    password: zod.string()
+})
 
 router.post("/signin", async (req, res) => {
-     const { success } = signinBody.safeParse(req.body)
+     const { success } = signinSchema.safeParse(req.body)
     if (!success) {
         return res.status(411).json({
             message: "Incorrect inputs"
@@ -98,6 +90,11 @@ router.post("/signin", async (req, res) => {
     })
 })
 
+const updateUserSchema = zod.object({
+    password: zod.string().min(6),
+    firstName: zod.string().max(30),
+    lastName: zod.string().max(30)
+})
 
 router.put("/", authMiddleware, async (req, res) => {
     const {success} = updateUserSchema.safeParse(req.body);
@@ -107,13 +104,14 @@ router.put("/", authMiddleware, async (req, res) => {
         })
     }
 
-    await User.updateOne({ _id: req.userId}, req.body);
+    await User.updateOne( req.body, {
+         _id: req.userId
+        });
 
     res.status(200).json({
         message: "Update successfully"
     })
 
-    const userId = User.req.userId;
 })
 
 

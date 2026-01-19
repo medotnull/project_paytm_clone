@@ -1,16 +1,34 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
-const config = require('./routes/config');
-const {Schema} = mongoose;
 
-// db.js
-mongoose.connect(config.mongoURI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB error:", err));
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1); // Exit process on connection failure
+  });
 
-mongoose.connection.on('error', err => console.error('DB error:', err));
+mongoose.connection.on('connected', () => {
+  console.log('📡 Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('error', err => {
+  console.error('⚠️  MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('🔌 MongoDB disconnected');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('👋 MongoDB connection closed through app termination');
+  process.exit(0);
+});
 
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true, 
@@ -40,7 +58,7 @@ const userSchema = new Schema({
     },
 })
 
-const accountsSchema = new Schema({
+const accountsSchema = new mongoose.Schema({
     userId: { //foreign key
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -56,4 +74,7 @@ const Account = mongoose.model("Account", accountsSchema);
 const User = mongoose.model("User", userSchema);
 
 
-module.exports = { User, Account};
+module.exports = {
+    User, 
+    Account
+};
