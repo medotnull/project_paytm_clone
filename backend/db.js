@@ -7,18 +7,7 @@ mongoose.connect(process.env.MONGO_URI)
     console.error('❌ MongoDB connection failed:', err.message);
     process.exit(1); // Exit process on connection failure
   });
-
-mongoose.connection.on('connected', () => {
-  console.log('📡 Mongoose connected to MongoDB');
-});
-
-mongoose.connection.on('error', err => {
-  console.error('⚠️  MongoDB connection error:', err.message);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('🔌 MongoDB disconnected');
-});
+  
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

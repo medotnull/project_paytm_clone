@@ -4,6 +4,9 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+// Initialize database connection
+require("./db");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -11,6 +14,8 @@ app.use(express.json());
 
 const rootRouter = require("./routes/index");
 app.use("/api/v1", rootRouter);
+
+
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
